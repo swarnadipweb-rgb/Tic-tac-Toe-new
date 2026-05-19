@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe Deluxe</title>
+    <!-- Canvas-Confetti library for premium winning animation effects -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            width: 360px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Input screen styles */
+        .setup-screen input {
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            transition: 0.3s;
+        }
+
+        .setup-screen input:focus {
+            outline: none;
+            border-color: #00d2ff;
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(255, 65, 108, 0.4);
+            transition: 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 65, 108, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Game interface screen */
+        .game-screen {
+            display: none;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            background: rgba(0,0,0,0.3);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .score-box {
+            transition: transform 0.3s ease;
+        }
+        
+        .score-box.bump {
+            transform: scale(1.2);
+        }
+
+        .status {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #00d2ff;
+            height: 30px;
+        }
+
+        /* The Grid */
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .cell {
+            width: 95px;
+            height: 95px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.8rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .cell:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.03);
+        }
+
+        /* Tile pop animation when clicked */
+        .cell.pop {
+            animation: cellPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cell.X { color: #ff4757; text-shadow: 0 0 10px rgba(255,71,87,0.5); }
+        .cell.O { color: #2ed573; text-shadow: 0 0 10px rgba(46,213,115,0.5); }
+
+        /* Highlight win strip */
+        .cell.winner-highlight {
+            background: rgba(255, 215, 0, 0.25) !important;
+            border: 2px solid #ffd700;
+            animation: pulse 1s infinite alternate;
+        }
+
+        /* Modern Overlay Modal for Win/Draw screens */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            z-index: 10;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: #1f2a38;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            transform: scale(0.7);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 90%;
+            width: 320px;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal h2 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        .modal p {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: #ddd;
+        }
+
+        /* Keyframe Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes cellPop { 
+            0% { transform: scale(0.5); opacity: 0; } 
+            100% { transform: scale(1); opacity: 1; } 
+        }
+        @keyframes pulse { 
+            0% { transform: scale(1); } 
+            100% { transform: scale(1.05); } 
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        .shake-animation { animation: shake 0.4s ease-in-out; }
+    </style>
+</head>
+<body>
+
+    <!-- CORE WRAPPER -->
+    <div class="container" id="mainContainer">
+        <!-- PLAYER SETUP SCREEN -->
+        <div id="setupScreen" class="setup-screen">
+            <h1>Tic-Tac-Toe</h1>
+            <input type="text" id="p1Input" placeholder="Player 1 Name (X)" value="Player 1" required>
+            <input type="text" id="p2Input" placeholder="Player 2 Name (O)" value="Player 2" required>
+            <button onclick="startGame()">Start Match</button>
+        </div>
+
+        <!-- MAIN GAME PLAYGROUND -->
+        <div id="gameScreen" class="game-screen">
+            <div class="score-board">
+                <div class="score-box" id="p1Box"><span id="p1NameDisplay">P1</span>: <strong id="p1Score">0</strong></div>
+                <div class="score-box" id="p2Box"><span id="p2NameDisplay">P2</span>: <strong id="p2Score">0</strong></div>
+            </div>
+            
+            <div class="status" id="statusText">Setting things up...</div>
+
+            <div class="board">
+                <div class="cell" onclick="makeMove(this, 0)"></div>
+                <div class="cell" onclick="makeMove(this, 1)"></div>
+                <div class="cell" onclick="makeMove(this, 2)"></div>
+                <div class="cell" onclick="makeMove(this, 3)"></div>
+                <div class="cell" onclick="makeMove(this, 4)"></div>
+                <div class="cell" onclick="makeMove(this, 5)"></div>
+                <div class="cell" onclick="makeMove(this, 6)"></div>
+                <div class="cell" onclick="makeMove(this, 7)"></div>
+                <div class="cell" onclick="makeMove(this, 8)"></div>
+            </div>
+
+            <button onclick="resetBoard()">Reset Grid</button>
+        </div>
+    </div>
+
+    <!-- CELEBRATION WIN POP-UP WINDOW -->
+    <div class="overlay" id="winOverlay">
+        <div class="modal">
+            <h2 id="modalTitle">🎉 Winner!</h2>
+            <p id="modalDesc">Player won this round!</p>
+            <button onclick="closeModalAndNextRound()">Keep Playing</button>
+        </div>
+    </div>
+
+    <script>
+        let player1 = "Player 1";
+        let player2 = "Player 2";
+        let p1Score = 0;
+        let p2Score = 0;
+        
+        let currentPlayer = "X"; 
+        let boardState = ["", "", "", "", "", "", "", "", ""];
+        let gameActive = true;
+
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        function startGame() {
+            const p1Input = document.getElementById("p1Input").value.trim();
+            const p2Input = document.getElementById("p2Input").value.trim();
+
+            if (p1Input !== "") player1 = p1Input;
+            if (p2Input !== "") player2 = p2Input;
+
+            document.getElementById("p1NameDisplay").innerText = player1;
+            document.getElementById("p2NameDisplay").innerText = player2;
+
+            document.getElementById("setupScreen").style.display = "none";
+            document.getElementById("gameScreen").style.display = "block";
+            
+            updateStatus();
+        }
+
+        function updateStatus() {
+            let currentName = (currentPlayer === "X") ? player1 : player2;
+            document.getElementById("statusText").innerText = `${currentName}'s Turn (${currentPlayer})`;
+        }
+
+        function makeMove(cell, index) {
+            if (boardState[index] !== "" || !gameActive) return;
+
+            boardState[index] = currentPlayer;
+            cell.innerText = currentPlayer;
+            cell.classList.add(currentPlayer, 'pop');
+
+            checkResult();
+        }
+
+        function triggerConfetti() {
+            // Shoots sweet particle bursts from both sides of screen
+            let duration = 2 * 1000;
+            let end = Date.now() + duration;
+
+            (function frame() {
+                confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0, y: 0.8 } });
+                confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1, y: 0.8 } });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
+            }());
+        }
+
+        function checkResult() {
+            let roundWon = false;
+            let winningLine = [];
+
+            for (let i = 0; i < winningConditions.length; i++) {
+                const [a, b, c] = winningConditions[i];
+                if (boardState[a] && boardState[a] === boardState[b] && boardState[a] === boardState[c]) {
+                    roundWon = true;
+                    winningLine = [a, b, c];
+                    break;
+                }
+            }
+
+            if (roundWon) {
+                gameActive = false;
+                let winnerName = (currentPlayer === "X") ? player1 : player2;
+                
+                // Highlight tiles involved in winning combination
+                const cells = document.querySelectorAll('.cell');
+                winningLine.forEach(idx => cells[idx].classList.add('winner-highlight'));
+
+                // Add points and animate score counter bump
+                if (currentPlayer === "X") {
+                    p1Score++;
+                    document.getElementById("p1Score").innerText = p1Score;
+                    document.getElementById("p1Box").classList.add("bump");
+                } else {
+                    p2Score++;
+                    document.getElementById("p2Score").innerText = p2Score;
+                    document.getElementById("p2Box").classList.add("bump");
+                }
+
+                document.getElementById("statusText").innerText = `🏆 ${winnerName} Wins!`;
+
+                // Fire cool animations after tiny delay
+                setTimeout(() => {
+                    triggerConfetti();
+                    showEndgameModal(`🎉 Champion!`, `${winnerName} completely dominated this round.`);
+                }, 400);
+                return;
+            }
+
+            // Tie/Draw handling
+            if (!boardState.includes("")) {
+                gameActive = false;
+                document.getElementById("statusText").innerText = "It's a Tie Game!";
+                document.getElementById("mainContainer").classList.add("shake-animation");
+                
+                setTimeout(() => {
+                    document.getElementById("mainContainer").classList.remove("shake-animation");
+                    showEndgameModal("👔 Deadlock!", "Outstanding defense from both players. It's a draw!");
+                }, 500);
+                return;
+            }
+
+            // Rotate Turn
+            currentPlayer = (currentPlayer === "X") ? "O" : "X";
+            updateStatus();
+        }
+
+        function showEndgameModal(title, text) {
+            document.getElementById("modalTitle").innerText = title;
+            document.getElementById("modalDesc").innerText = text;
+            document.getElementById("winOverlay").classList.add("active");
+        }
+
+        function closeModalAndNextRound() {
+            document.getElementById("winOverlay").classList.remove("active");
+            // Remove the bump animation styles
+            document.getElementById("p1Box").classList.remove("bump");
+            document.getElementById("p2Box").classList.remove("bump");
+            resetBoard();
+        }
+
+        function resetBoard() {
+            currentPlayer = "X";
+            boardState = ["", "", "", "", "", "", "", "", ""];
+            gameActive = true;
+            updateStatus();
+            
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.innerText = "";
+                cell.className = "cell"; // completely purges modifiers like X, O, pop, winner-highlight
+            });
+        }
+    </script>
+</body>
+</html>
