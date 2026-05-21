@@ -271,11 +271,10 @@
     </div>
 
     <script>
-        // গিটহাব পেজেস লাইভ ডোমেইনের জন্য রিলেটিভ পাথ কনফিগারেশন 
+        // জাভাস্ক্রিপ্ট অডিও অবজেক্টস সেটআপ (তোর ফাইলের নাম অনুযায়ী)
         const winSound = new Audio('meow_ghop.mp3');
         const drawSound = new Audio('fahhhhh.mp3');
         
-        // অটো এবং আগাম সাউন্ড লোড করার ডিরেক্টিভ
         winSound.preload = 'auto';
         drawSound.preload = 'auto';
 
@@ -311,14 +310,12 @@
             updateStatus();
         }
 
-        // আধুনিক মোবাইল ব্রাউজারের অটো-প্লে ব্লকার বাইপাস করার মাস্টার ফাংশন
+        // ব্রাউজার বা মোবাইল ওয়েবভিউ-এর অডিও লক খোলার মাস্টার ফাংশন
         function unlockAudio() {
             if (audioUnlocked) return;
-            
-            // সাইলেন্টলি প্লে অ্যান্ড পজ করে ট্র্যাক চ্যানেল ওপেন করে রাখা
+            // ব্যাকগ্রাউন্ডে সাইলেন্টলি ট্রিগার করে স্পিকার চ্যানেল একটিভ করা
             winSound.play().then(() => { winSound.pause(); winSound.currentTime = 0; }).catch(e => console.log(e));
             drawSound.play().then(() => { drawSound.pause(); drawSound.currentTime = 0; }).catch(e => console.log(e));
-            
             audioUnlocked = true;
         }
 
@@ -330,7 +327,7 @@
         function makeMove(cell, index) {
             if (boardState[index] !== "" || !gameActive) return;
 
-            // প্লেয়ার বক্সে ক্লিক করার সাথে সাথে ব্রাউজারের অডিও লক সাইলেন্টলি রিলিজ হবে
+            // প্রথম কোনো বক্সে টাচ করার সাথে সাথে ব্রাউজারের মিউজিক সিস্টেমের লক খুলে যাবে
             unlockAudio();
 
             boardState[index] = currentPlayer;
@@ -364,6 +361,7 @@
                 }
             }
 
+            // ম্যাচ কেউ জিতলে (Game Over / Won)
             if (roundWon) {
                 gameActive = false;
                 let winnerName = (currentPlayer === "X") ? player1 : player2;
@@ -383,11 +381,11 @@
 
                 document.getElementById("statusText").innerText = `🏆 ${winnerName} Wins!`;
 
-                // উইন মেও_ঘপ সাউন্ড ইফেক্ট এক্সিকিউশন
+                // 🚨 ১ম সাউন্ড প্লে হবে (meow_ghop.mp3)
                 try {
                     winSound.currentTime = 0;
                     winSound.play();
-                } catch(e) { console.log("Audio trigger failed", e); }
+                } catch(e) { console.log("Audio block error:", e); }
 
                 setTimeout(() => {
                     triggerConfetti();
@@ -396,16 +394,17 @@
                 return;
             }
 
+            // ম্যাচ ড্র বা টাই হলে (Draw Match)
             if (!boardState.includes("")) {
                 gameActive = false;
                 document.getElementById("statusText").innerText = "It's a Tie Game!";
                 document.getElementById("mainContainer").classList.add("shake-animation");
                 
-                // ড্র ফাহহহহহ সাউন্ড ইফেক্ট এক্সিকিউশন
+                // 🚨 ২য় সাউন্ড প্লে হবে (fahhhhh.mp3)
                 try {
                     drawSound.currentTime = 0;
                     drawSound.play();
-                } catch(e) { console.log("Audio trigger failed", e); }
+                } catch(e) { console.log("Audio block error:", e); }
 
                 setTimeout(() => {
                     document.getElementById("mainContainer").classList.remove("shake-animation");
@@ -447,3 +446,4 @@
 </body>
 </html>
 
+                
