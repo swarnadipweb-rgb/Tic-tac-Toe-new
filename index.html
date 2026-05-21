@@ -271,7 +271,7 @@
     </div>
 
     <script>
-        // এখানে তোর অরিজিনাল ফাইলের নাম দুটি হুবহু বসিয়ে ফিক্স করা হলো
+        // 🚨 তোর পাঠানো অরিজিনাল অডিও ফাইলের নাম দুটো হুবহু এখানে লিংক করা হলো
         const winSound = new Audio('meow-gop-gop-gop-gop-gop.mp3'); 
         const drawSound = new Audio('fahhh_KcgAXfs.mp3');                 
         
@@ -310,7 +310,7 @@
             updateStatus();
         }
 
-        // ব্রাউজার অডিও সিস্টেম আনলকার মাস্টার মেকানিজম
+        // ব্রাউজার অডিও চ্যানেল অ্যাক্টিভেট করার মাস্টার মেকানিজম
         function unlockAudio() {
             if (audioUnlocked) return;
             winSound.play().then(() => { winSound.pause(); winSound.currentTime = 0; }).catch(e => console.log(e));
@@ -326,7 +326,7 @@
         function makeMove(cell, index) {
             if (boardState[index] !== "" || !gameActive) return;
 
-            // বোর্ডে প্রথম ক্লিক করার সাথে সাথেই ফোনের ব্রাউজারের অডিও লক খুলে যাবে
+            // বোর্ডে প্রথম চাল দেওয়ার সাথে সাথেই ব্রাউজারের মিউজিক লক সাইলেন্টলি আনলক হবে
             unlockAudio();
 
             boardState[index] = currentPlayer;
@@ -360,7 +360,7 @@
                 }
             }
 
-            // ১. কেউ জিতলে এই সাউন্ড বাজবে
+            // ১. কেউ ম্যাচ জিতলে এই সেকশন কাজ করবে
             if (roundWon) {
                 gameActive = false;
                 let winnerName = (currentPlayer === "X") ? player1 : player2;
@@ -380,7 +380,7 @@
 
                 document.getElementById("statusText").innerText = `🏆 ${winnerName} Wins!`;
 
-                // 🔊 এখানে "meow-gop-gop-gop-gop-gop.mp3" প্লে হবে
+                // 🔊 ম্যাচ জিতলে meow-gop-gop-gop-gop-gop.mp3 ফাইলটি প্লে হবে
                 try {
                     winSound.currentTime = 0;
                     winSound.play();
@@ -393,13 +393,13 @@
                 return;
             }
 
-            // ২. ম্যাচ ড্র হলে এই সাউন্ড বাজবে
+            // ২. ম্যাচ ড্র বা টাই হলে এই সেকশন কাজ করবে
             if (!boardState.includes("")) {
                 gameActive = false;
                 document.getElementById("statusText").innerText = "It's a Tie Game!";
                 document.getElementById("mainContainer").classList.add("shake-animation");
                 
-                // 🔊 এখানে "fahhhhh.mp3" প্লে হবে
+                // 🔊 ম্যাচ ড্র হলে fahhh_KcgAXfs.mp3 ফাইলটি প্লে হবে
                 try {
                     drawSound.currentTime = 0;
                     drawSound.play();
@@ -445,4 +445,4 @@
 </body>
 </html>
 
-                              
+        
