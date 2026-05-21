@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="google-site-verification" content="2kI4CLSK80BZo_uV6rolTuKpmEL6ucONXf6qS-C4jww" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic-Tac-Toe Deluxe by Swarnadip</title>
-    <!-- Canvas-Confetti library for premium winning animation effects -->
+    <title>Tic-Tac-Toe Deluxe</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * {
@@ -232,9 +230,7 @@
 </head>
 <body>
 
-    <!-- CORE WRAPPER -->
     <div class="container" id="mainContainer">
-        <!-- PLAYER SETUP SCREEN -->
         <div id="setupScreen" class="setup-screen">
             <h1>Tic-Tac-Toe</h1>
             <input type="text" id="p1Input" placeholder="Player 1 Name (X)" value="Player 1" required>
@@ -242,7 +238,6 @@
             <button onclick="startGame()">Start Match</button>
         </div>
 
-        <!-- MAIN GAME PLAYGROUND -->
         <div id="gameScreen" class="game-screen">
             <div class="score-board">
                 <div class="score-box" id="p1Box"><span id="p1NameDisplay">P1</span>: <strong id="p1Score">0</strong></div>
@@ -267,16 +262,24 @@
         </div>
     </div>
 
-    <!-- CELEBRATION WIN POP-UP WINDOW -->
     <div class="overlay" id="winOverlay">
         <div class="modal">
-            <h2 id="modalTitle">🎉 Winner!</h2>
+            <h2 id="modalTitle">🏆 Winner!</h2>
             <p id="modalDesc">Player won this round!</p>
             <button onclick="closeModalAndNextRound()">Keep Playing</button>
         </div>
     </div>
 
     <script>
+        // গিটহাব পেজেস লাইভ ডোমেইনের জন্য রিলেটিভ পাথ কনফিগারেশন 
+        const winSound = new Audio('meow_ghop.mp3');
+        const drawSound = new Audio('fahhhhh.mp3');
+        
+        // অটো এবং আগাম সাউন্ড লোড করার ডিরেক্টিভ
+        winSound.preload = 'auto';
+        drawSound.preload = 'auto';
+
+        let audioUnlocked = false;
         let player1 = "Player 1";
         let player2 = "Player 2";
         let p1Score = 0;
@@ -308,6 +311,17 @@
             updateStatus();
         }
 
+        // আধুনিক মোবাইল ব্রাউজারের অটো-প্লে ব্লকার বাইপাস করার মাস্টার ফাংশন
+        function unlockAudio() {
+            if (audioUnlocked) return;
+            
+            // সাইলেন্টলি প্লে অ্যান্ড পজ করে ট্র্যাক চ্যানেল ওপেন করে রাখা
+            winSound.play().then(() => { winSound.pause(); winSound.currentTime = 0; }).catch(e => console.log(e));
+            drawSound.play().then(() => { drawSound.pause(); drawSound.currentTime = 0; }).catch(e => console.log(e));
+            
+            audioUnlocked = true;
+        }
+
         function updateStatus() {
             let currentName = (currentPlayer === "X") ? player1 : player2;
             document.getElementById("statusText").innerText = `${currentName}'s Turn (${currentPlayer})`;
@@ -315,6 +329,9 @@
 
         function makeMove(cell, index) {
             if (boardState[index] !== "" || !gameActive) return;
+
+            // প্লেয়ার বক্সে ক্লিক করার সাথে সাথে ব্রাউজারের অডিও লক সাইলেন্টলি রিলিজ হবে
+            unlockAudio();
 
             boardState[index] = currentPlayer;
             cell.innerText = currentPlayer;
@@ -324,7 +341,6 @@
         }
 
         function triggerConfetti() {
-            // Shoots sweet particle bursts from both sides of screen
             let duration = 2 * 1000;
             let end = Date.now() + duration;
 
@@ -352,11 +368,9 @@
                 gameActive = false;
                 let winnerName = (currentPlayer === "X") ? player1 : player2;
                 
-                // Highlight tiles involved in winning combination
                 const cells = document.querySelectorAll('.cell');
                 winningLine.forEach(idx => cells[idx].classList.add('winner-highlight'));
 
-                // Add points and animate score counter bump
                 if (currentPlayer === "X") {
                     p1Score++;
                     document.getElementById("p1Score").innerText = p1Score;
@@ -369,28 +383,37 @@
 
                 document.getElementById("statusText").innerText = `🏆 ${winnerName} Wins!`;
 
-                // Fire cool animations after tiny delay
+                // উইন মেও_ঘপ সাউন্ড ইফেক্ট এক্সিকিউশন
+                try {
+                    winSound.currentTime = 0;
+                    winSound.play();
+                } catch(e) { console.log("Audio trigger failed", e); }
+
                 setTimeout(() => {
                     triggerConfetti();
-                    showEndgameModal(`🎉 Champion!`, `${winnerName} completely dominated this round.`);
+                    showEndgameModal(`🏆 Champion!`, `${winnerName} completely dominated this round.`);
                 }, 400);
                 return;
             }
 
-            // Tie/Draw handling
             if (!boardState.includes("")) {
                 gameActive = false;
                 document.getElementById("statusText").innerText = "It's a Tie Game!";
                 document.getElementById("mainContainer").classList.add("shake-animation");
                 
+                // ড্র ফাহহহহহ সাউন্ড ইফেক্ট এক্সিকিউশন
+                try {
+                    drawSound.currentTime = 0;
+                    drawSound.play();
+                } catch(e) { console.log("Audio trigger failed", e); }
+
                 setTimeout(() => {
                     document.getElementById("mainContainer").classList.remove("shake-animation");
-                    showEndgameModal("👔 Deadlock!", "Outstanding defense from both players. It's a draw!");
+                    showEndgameModal("🤝 Deadlock!", "Outstanding defense from both players. It's a draw!");
                 }, 500);
                 return;
             }
 
-            // Rotate Turn
             currentPlayer = (currentPlayer === "X") ? "O" : "X";
             updateStatus();
         }
@@ -403,7 +426,6 @@
 
         function closeModalAndNextRound() {
             document.getElementById("winOverlay").classList.remove("active");
-            // Remove the bump animation styles
             document.getElementById("p1Box").classList.remove("bump");
             document.getElementById("p2Box").classList.remove("bump");
             resetBoard();
@@ -418,9 +440,10 @@
             const cells = document.querySelectorAll('.cell');
             cells.forEach(cell => {
                 cell.innerText = "";
-                cell.className = "cell"; // completely purges modifiers like X, O, pop, winner-highlight
+                cell.className = "cell";
             });
         }
     </script>
 </body>
 </html>
+
