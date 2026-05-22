@@ -271,9 +271,9 @@
     </div>
 
     <script>
-        // 🚨 তোর পাঠানো অরিজিনাল অডিও ফাইলের নাম দুটো এখানে ১০০% পারফেক্টলি ফিক্সড করা হলো
-        const winSound = new Audio('meow-gop-gop-gop-gop-gop.mp3'); 
-        const drawSound = new Audio('fahhh_KcgAXfs.mp3');                 
+        // 🎯 তোর দেওয়া দুটো অরিজিনাল সাউন্ডেরই ডিরেক্ট অনলাইন ক্লাউড লিংক এখানে সেট করা হলো!
+        const winSound = new Audio('https://dl.dropboxusercontent.com/scl/fi/v6onrbyatp23ofq174h3j/meow-gop-gop-gop-gop-gop.mp3?rlkey=b44oowwly9gsw2x78000shzqy&st=8wun66v7'); 
+        const drawSound = new Audio('https://dl.dropboxusercontent.com/scl/fi/v65f61is5t24j24f8d22k/fahhh_KcgAXfs.mp3?rlkey=v6l6993m3g35q1sc1d6z610m3&st=8atj5v15');                 
         
         winSound.preload = 'auto';
         drawSound.preload = 'auto';
@@ -310,7 +310,7 @@
             updateStatus();
         }
 
-        // ব্রাউজারের সিকিউরিটি লক ভাঙার মাস্টার কোড
+        // ব্রাউজারের মিউজিক চ্যানেল ফোর্স আনলক করার মাস্টার মেকানিজম
         function unlockAudio() {
             if (audioUnlocked) return;
             winSound.play().then(() => { winSound.pause(); winSound.currentTime = 0; }).catch(e => console.log(e));
@@ -326,7 +326,7 @@
         function makeMove(cell, index) {
             if (boardState[index] !== "" || !gameActive) return;
 
-            // বোর্ডে প্রথম চাল দেওয়ার সাথে সাথেই সাউন্ড চ্যানেল অ্যাক্টিভেট হয়ে যাবে
+            // বোর্ডে প্রথম ক্লিক করার সাথে সাথেই ফোনের ব্রাউজারের মিউজিক লক সাইলেন্টলি ভেঙে যাবে
             unlockAudio();
 
             boardState[index] = currentPlayer;
@@ -380,7 +380,7 @@
 
                 document.getElementById("statusText").innerText = `🏆 ${winnerName} Wins!`;
 
-                // 🔊 এখানে তোর অরিজিনাল "meow-gop-gop-gop-gop-gop.mp3" বাজবে
+                // 🔊 অনলাইন মিঁয়াওউউ সাউন্ড প্লে
                 try {
                     winSound.currentTime = 0;
                     winSound.play();
@@ -388,7 +388,7 @@
 
                 setTimeout(() => {
                     triggerConfetti();
-                    showEndgameModal(`🏆 Champion!`, `${winnerName} completely dominated this round.`);
+                    showEndgameModal(`🏆 Champion!`, `${winnerName} round জিতেছে।`);
                 }, 400);
                 return;
             }
@@ -399,7 +399,7 @@
                 document.getElementById("statusText").innerText = "It's a Tie Game!";
                 document.getElementById("mainContainer").classList.add("shake-animation");
                 
-                // 🔊 এখানে তোর অরিজিনাল "fahhh_KcgAXfs.mp3" বাজবে
+                // 🔊 অনলাইন ফাহ্ সাউন্ড প্লে
                 try {
                     drawSound.currentTime = 0;
                     drawSound.play();
@@ -444,3 +444,5 @@
     </script>
 </body>
 </html>
+
+                                
