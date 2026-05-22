@@ -271,9 +271,9 @@
     </div>
 
     <script>
-        // 🚨 গিটহাবের ফাইলের ঝামেলা শেষ করতে সরাসরি দুটি গ্লোবাল অনলাইন ওপেন-সোর্স সাউন্ড লিংক দেওয়া হলো
-        const winSound = new Audio('https://actions.google.com/sounds/v1/cartoon/slide_whistle_up.ogg'); 
-        const drawSound = new Audio('https://actions.google.com/sounds/v1/cartoon/boing_long.ogg');                 
+        // 🚨 তোর পাঠানো অরিজিনাল অডিও ফাইলের নাম দুটো এখানে ১০০% পারফেক্টলি ফিক্সড করা হলো
+        const winSound = new Audio('meow-gop-gop-gop-gop-gop.mp3'); 
+        const drawSound = new Audio('fahhh_KcgAXfs.mp3');                 
         
         winSound.preload = 'auto';
         drawSound.preload = 'auto';
@@ -310,7 +310,7 @@
             updateStatus();
         }
 
-        // ব্রাউজারের অডিও চ্যানেল ফোর্স আনলক করার মাস্টার মেকানিজম
+        // ব্রাউজারের সিকিউরিটি লক ভাঙার মাস্টার কোড
         function unlockAudio() {
             if (audioUnlocked) return;
             winSound.play().then(() => { winSound.pause(); winSound.currentTime = 0; }).catch(e => console.log(e));
@@ -326,7 +326,7 @@
         function makeMove(cell, index) {
             if (boardState[index] !== "" || !gameActive) return;
 
-            // বোর্ডে প্রথম ক্লিক করার সাথে সাথেই ফোনের ব্রাউজারের মিউজিক লক সাইলেন্টলি ভেঙে যাবে
+            // বোর্ডে প্রথম চাল দেওয়ার সাথে সাথেই সাউন্ড চ্যানেল অ্যাক্টিভেট হয়ে যাবে
             unlockAudio();
 
             boardState[index] = currentPlayer;
@@ -360,7 +360,7 @@
                 }
             }
 
-            // ১. কেউ ম্যাচ জিতলে
+            // ১. কেউ ম্যাচ জিতলে এই সেকশন রান করবে
             if (roundWon) {
                 gameActive = false;
                 let winnerName = (currentPlayer === "X") ? player1 : player2;
@@ -380,7 +380,7 @@
 
                 document.getElementById("statusText").innerText = `🏆 ${winnerName} Wins!`;
 
-                // উইন অনলাইন সাউন্ড প্লে
+                // 🔊 এখানে তোর অরিজিনাল "meow-gop-gop-gop-gop-gop.mp3" বাজবে
                 try {
                     winSound.currentTime = 0;
                     winSound.play();
@@ -393,13 +393,13 @@
                 return;
             }
 
-            // ২. ম্যাচ ড্র বা টাই হলে
+            // ২. ম্যাচ টাই বা ড্র হলে এই সেকশন রান করবে
             if (!boardState.includes("")) {
                 gameActive = false;
                 document.getElementById("statusText").innerText = "It's a Tie Game!";
                 document.getElementById("mainContainer").classList.add("shake-animation");
                 
-                // ড্র অনলাইন সাউন্ড প্লে
+                // 🔊 এখানে তোর অরিজিনাল "fahhh_KcgAXfs.mp3" বাজবে
                 try {
                     drawSound.currentTime = 0;
                     drawSound.play();
@@ -444,7 +444,3 @@
     </script>
 </body>
 </html>
-
-            
-                    
-        
